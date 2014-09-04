@@ -7,6 +7,7 @@ var port    =  '9090';
 var connection_string = '127.0.0.1:27017/myapp';
 var db = mongojs(connection_string, ['myapp']);
 var jobs = db.collection("jobs")
+var gaadikeys = db.collection("gaadikeys");
  
 var server = restify.createServer({
     name : "myapp"
@@ -28,6 +29,10 @@ server.post({path : PATH , version: '0.0.1'} ,postNewJob);
 server.del({path : PATH +'/:jobId' , version: '0.0.1'} ,deleteJob);
 
 
+var LOOKUP_PATH = '/lookup'
+server.get({path : LOOKUP_PATH, version : '0.0.1'}, lookupGaadiKeys);
+
+
 function findAllJobs(req, res , next){
     res.setHeader('Access-Control-Allow-Origin','*');
     jobs.find().limit(20).sort({postedOn : -1} , function(err , success){
@@ -43,7 +48,26 @@ function findAllJobs(req, res , next){
     });
  
 }
+
+
+function lookupGaadiKeys(req, res , next)
+{
+     res.setHeader('Access-Control-Allow-Origin','*');
+     gaadikeys.findOne({gkey:req.gaadikey} , function(err , success) {
+        console.log('Response success '+success);
+        if(success) {
+            res.send(200, success);
+            return next();
+        }
+
+        return next(err);
+
+     })
+
+}
+
  
+
 function findJob(req, res , next){
     res.setHeader('Access-Control-Allow-Origin','*');
     jobs.findOne({_id:mongojs.ObjectId(req.params.jobId)} , function(err , success){
@@ -56,6 +80,7 @@ function findJob(req, res , next){
         return next(err);
     })
 }
+
  
 function postNewJob(req , res , next){
     var job = {};
