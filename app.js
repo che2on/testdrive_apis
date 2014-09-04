@@ -53,7 +53,7 @@ function findAllJobs(req, res , next){
 function lookupGaadiKeys(req, res , next)
 {
      res.setHeader('Access-Control-Allow-Origin','*');
-     gaadikeys.findOne({gkey:req.gaadikey} , function(err , success) {
+     gaadikeys.findOne({gkey:req.params.gaadikey} , function(err , success) {
         console.log('Response success '+success);
         if(success) {
             res.send(200, success);
